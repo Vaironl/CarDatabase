@@ -1,0 +1,7 @@
+#the following assumes a command line program which can easily be transfered to a GUI
+
+[X] 1) Create a database containing the cars, another for the auto parts installed. For extra difficulty try a database of pictures| service schedule| & previous problems
+[X] 2) User can add a car (make, model, year, horsepower, engine, transmission) make & model fields are required
+[X] 3) User can remove a car by selecting the id of the car from the list displayed.
+[X] 4) The user can add car parts and link them to a specific car (only one car can have this car part)
+[X] 5) The user should be able to wipe out this
