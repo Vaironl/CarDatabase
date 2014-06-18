@@ -74,26 +74,18 @@ def selectCar(carID):
     return car[0]
     
 
-def fetchCarParts(carId):
+def fetchCarParts(carID):
     conn = sqlite3.connect(_db)
     cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM carparts WHERE carid = " + str(carId))
+    cursor.execute("SELECT * FROM carparts WHERE carid = " + carID)
     parts = cursor.fetchall()
-    print parts
-    
     conn.commit()
     conn.close()
+    return parts
     
-    
-    
-def addCarPart():
+def addCarPart(carID, carPartName, carNotes):
     conn = sqlite3.connect(_db)
     cursor = conn.cursor()
-    
-    carID = selectCar()
-    carPartName = raw_input("What is the name of the car part?")
-    carNotes = raw_input("Add description or notes of this part: ")
     
     cursor.execute("INSERT INTO carparts VALUES (?,?,?)",(carID, carPartName, carNotes))
     
@@ -106,7 +98,9 @@ def removeCar(car):
     cursor = conn.cursor()
     
     #Create table
+    print selectCar(car)
     cursor.execute("DELETE FROM carlist WHERE ID = " + car)
+    cursor.execute("DELETE FROM carparts WHERE carid = " + car)
     
     # Save (commit) the changes
     conn.commit()
