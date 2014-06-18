@@ -210,9 +210,8 @@ class Example(wx.Frame):
     def UpdateCarParts(self):
         carParts = fetchCarParts(self.IDValue.GetValue())
         if carParts:
-            self.partList.ClearAll()
             for i in carParts:
-                print i
+                print i[1]
                 index = self.partList.InsertStringItem(sys.maxint,i[1])
                 self.partList.SetStringItem(index,1,i[2])
         
