@@ -9,7 +9,6 @@ from DBConnection import *
 import sys
 import wx
 
-
 # init the connection to the database
 carDatabase = 'carlist.db'
 initConnection(carDatabase)
@@ -168,14 +167,23 @@ class Example(wx.Frame):
         tempName = self.partName.GetValue()
         tempNotes = self.partNotes.GetValue()
         tempID = self.IDValue.GetValue()
+        
         if(tempName and tempNotes and tempID):
             addCarPart(tempID, tempName, tempNotes)
             self.UpdateCarParts()
+        else:
+            wx.MessageBox('The car part properties must be filled and a car must be selected.','Alert')
             
         
     def SaveCar(self,e):
         if(self.makeTC.GetValue() and self.modelTC.GetValue()):
-            addCar(initCar(self.makeTC.GetValue(), self.modelTC.GetValue(), self.yearTC.GetValue(), self.horsepowerTC.GetValue(), self.engineTC.GetValue(), self.transmissionTC.GetValue()))
+            #if there is a car already selected update that car
+            car = initCar(self.makeTC.GetValue(), self.modelTC.GetValue(), self.yearTC.GetValue(), self.horsepowerTC.GetValue(), self.engineTC.GetValue(), self.transmissionTC.GetValue())
+            if(self.IDValue.GetValue()):
+                updateCar(self.IDValue.GetValue(),car)
+            else:
+                addCar(car)
+                
             self.UpdateCarList()
             self.clearAllTC()
     
@@ -208,10 +216,10 @@ class Example(wx.Frame):
 
                 
     def UpdateCarParts(self):
+        self.partList.DeleteAllItems()
         carParts = fetchCarParts(self.IDValue.GetValue())
         if carParts:
             for i in carParts:
-                print i[1]
                 index = self.partList.InsertStringItem(sys.maxint,i[1])
                 self.partList.SetStringItem(index,1,i[2])
         

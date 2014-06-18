@@ -12,7 +12,7 @@ def initConnection(db):
     
     #Create tables
     cursor.execute('''CREATE TABLE IF NOT EXISTS carlist (ID integer primary key, make TEXT, model TEXT, year TEXT, horsepower TEXT, engine TEXT,transmission TEXT)''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS carparts (carid INT, partname TEXT, notes TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS carparts (CARID INT, partname TEXT, notes TEXT)''')
     
     # Save (commit) the changes
     conn.commit()
@@ -61,6 +61,17 @@ def addCar(_car):
     conn.commit()
     conn.close()
     
+def updateCar(ID, _car):
+    conn = sqlite3.connect(_db)
+    cursor = conn.cursor()
+    
+    #NONE for ID
+    #cur.execute("UPDATE Cars SET Price=? WHERE Id=?", (uPrice, uId))
+    cursor.execute("UPDATE carlist SET MAKE = ?, MODEL = ?, YEAR = ?, HORSEPOWER = ?, ENGINE = ?, TRANSMISSION = ? WHERE ID = ?", (_car[0],_car[1],_car[2],_car[3],_car[4],_car[5], ID) )
+    
+    conn.commit()
+    conn.close()
+    
 def selectCar(carID):
     conn = sqlite3.connect(_db)
     cursor = conn.cursor()
@@ -77,8 +88,9 @@ def selectCar(carID):
 def fetchCarParts(carID):
     conn = sqlite3.connect(_db)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM carparts WHERE carid = " + carID)
+    cursor.execute("SELECT * FROM carparts WHERE CARID = " + carID)
     parts = cursor.fetchall()
+    #print parts
     conn.commit()
     conn.close()
     return parts
@@ -92,13 +104,13 @@ def addCarPart(carID, carPartName, carNotes):
     conn.commit()
     conn.close()
     
+    
 def removeCar(car):
     conn = sqlite3.connect(_db)
     
     cursor = conn.cursor()
     
     #Create table
-    print selectCar(car)
     cursor.execute("DELETE FROM carlist WHERE ID = " + car)
     cursor.execute("DELETE FROM carparts WHERE carid = " + car)
     
