@@ -119,3 +119,12 @@ def removeCar(car):
     # We can also close the connection if we are done with it.
     # Just be sure any changes have been committed or they will be lost.
     conn.close()
+    
+def removeCarParts(carID, partname):
+    conn = sqlite3.connect(_db)
+    cursor = conn.cursor()
+    #Create table
+    cursor.execute("DELETE FROM carparts WHERE carid = ? AND partname = ? ", (carID, partname))
+    conn.commit()
+    conn.close()
+    

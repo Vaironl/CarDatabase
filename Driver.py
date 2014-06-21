@@ -149,6 +149,9 @@ class Example(wx.Frame):
         hbox9 = wx.BoxSizer(wx.HORIZONTAL)
         self.addPart = wx.Button(panel, wx.ID_EXECUTE,'+ Car Part')
         hbox9.Add(self.addPart, proportion =1)
+        self.removePart = wx.Button(panel, wx.ID_REMOVE,'- Car Part')
+        hbox9.Add(self.removePart, proportion =1)
+        
         self.partName = wx.TextCtrl(panel)
         self.partNotes = wx.TextCtrl(panel)
         self.partName.SetHint("Part/Mod Name")
@@ -159,10 +162,11 @@ class Example(wx.Frame):
         
         
         self.Bind(wx.EVT_BUTTON, self.InsertCarPart, self.addPart)
+        self.Bind(wx.EVT_BUTTON, self.RemoveCarPart, self.removePart)
         
         panel.SetSizer(vbox)
 
-    
+
     def InsertCarPart(self,e):
         tempName = self.partName.GetValue()
         tempNotes = self.partNotes.GetValue()
@@ -174,6 +178,34 @@ class Example(wx.Frame):
         else:
             wx.MessageBox('The car part properties must be filled and a car must be selected.','Alert')
             
+            
+    def RemoveCarPart(self, e):
+        #make sure a car and item is selected
+        if self.carListID and self.partList.GetSelectedItemCount() > 0:
+            selection = []
+            current = self.partList.GetFirstSelected()
+            while current != -1:
+                selection.append(current)
+                current = self.partList.GetNextSelected(current)
+            
+                
+            def sortLargest(aList):
+                newList = list(aList)
+                
+                for x in range(0,len(newList)):
+                    
+                    for y in range(x,len(newList)):
+                        if newList[x] < newList[y]:
+                            temp = newList[x]
+                            newList.insert(x,newList.pop(y))
+                return newList
+            
+            selection = sortLargest(selection)
+                
+            #FOR SOME WEIRD REASON THE LIST MUST BE DELETE IN ORDER OF LARGEST INDEX OTHERWISE IT WILL GIVE ERRORS OR NOT DELETE ALL OF THE SELECTED ITEMS
+            for index in selection:
+                removeCarParts(self.IDValue.GetValue(), self.partList.GetItemText(index))
+                self.partList.DeleteItem(index)
         
     def SaveCar(self,e):
         if(self.makeTC.GetValue() and self.modelTC.GetValue()):
@@ -183,13 +215,15 @@ class Example(wx.Frame):
                 updateCar(self.IDValue.GetValue(),car)
             else:
                 addCar(car)
-                
+            
             self.UpdateCarList()
-            self.clearAllTC()
+            self.cb.SetSelection(len(self.cb.GetItems())-1)
+            self.UpdateCarInfo()
     
     def OnQuit(self, e):
         self.Close()
-        
+    
+    #Clear all of the inputs for the new car
     def OnAdd(self, e):
         self.clearAllTC()
         
@@ -202,8 +236,11 @@ class Example(wx.Frame):
             
         
     def OnSelect(self,e):
-        car = selectCar(self.carListID[e.GetInt()])
-        #0 = ID, 1 = Make, 2 = Model, 3 = Year, 4 = Horsepower, 5= Engine, 6 = Transmission
+        self.UpdateCarInfo()
+        
+        
+    def UpdateCarInfo(self):
+        car = selectCar(self.carListID[self.cb.GetSelection()])
         self.IDValue.SetValue(str(car[0]))
         self.makeTC.SetValue(car[1])
         self.modelTC.SetValue(car[2])
@@ -212,6 +249,7 @@ class Example(wx.Frame):
         self.engineTC.SetValue(car[5])
         self.transmissionTC.SetValue(car[6])
         self.UpdateCarParts()
+
         
 
                 
@@ -219,9 +257,14 @@ class Example(wx.Frame):
         self.partList.DeleteAllItems()
         carParts = fetchCarParts(self.IDValue.GetValue())
         if carParts:
-            for i in carParts:
-                index = self.partList.InsertStringItem(sys.maxint,i[1])
-                self.partList.SetStringItem(index,1,i[2])
+            if len(carParts) == 1:
+                
+                index = self.partList.InsertStringItem(sys.maxint,carParts[0][1])
+                self.partList.SetStringItem(index,1,carParts[0][2])
+            else:
+                for i in carParts:
+                    index = self.partList.InsertStringItem(sys.maxint,i[1])
+                    self.partList.SetStringItem(index,1,i[2])
         
     
     def clearAllTC(self):
